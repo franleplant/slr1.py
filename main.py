@@ -1,12 +1,12 @@
 from copy import deepcopy
 
+
 # grammar = (S string, VN set[string], VT set[string], prods)
 # prod = (head, body)
 # prods = [prod]
 # item = (i_prod, i_stacktop)
 # state = items = set[item]
 # canonical_collection = set[state]
-
 # action_table[state, string] =
 # ("shift", t_string)
 # ("reduce", i_prod)
@@ -193,6 +193,12 @@ def follow(grammar, first_table):
 
 
 def parse(grammar, tokens):
+    print ""
+    print "++++++++++++++++++++++++"
+    print "++++++++++++++++++++++++"
+    print "PARSE: {0}".format(tokens)
+    print "++++++++++++++++++++++++"
+    print "++++++++++++++++++++++++"
     grammar = grammar_with_fake_start(grammar)
     cc0, cc, goto_table = canonical_collection(grammar)
     first_table = first(grammar)
@@ -201,17 +207,34 @@ def parse(grammar, tokens):
     stack = [cc0]
     token_index = 0
     ok = True
+    iter = 0
     while True:
-        print "ITER"
-        print(token_index)
+        print ""
+        print "============"
+        print "ITER: {0}".format(iter)
+        print "============"
+        iter += 1
+
         print_stack(stack, cc)
 
         token = tokens[token_index]
-        print "token", token
+        print "Token: {0}".format(token[0])
+
         stacktop_state = stack[-1]
         actions = action_table.get((stacktop_state, token[0]))
+        if actions == None or len(actions) == 0:
+            return (False, "No actions")
+        if len(actions) > 1:
+            print "Conflicts in the action table"
         action = actions[0]
-        print "ACTION", action
+        action_str = action[0]
+        if len(action) == 2:
+            if action[0] == "shift":
+                # TODO
+                action_str += " {0}".format(action[1])
+            else:
+                action_str += " {0}".format(action[1])
+        print "Action: {0}".format(action_str)
 
         if action[0] == SHIFT:
             next_state = action[1]
@@ -227,7 +250,7 @@ def parse(grammar, tokens):
             stacktop_state = stack[-1]
             next_state = goto_table.get((stacktop_state, head), "DEFAULT2")
             stack.append(next_state)
-            print("reducing by % -> %", (head, body))
+            print "reducing by {0} -> {1}".format(head, body)
 
         elif action[0] == ACCEPT:
             break
@@ -324,15 +347,19 @@ def print_stack(stack, cc, index=False):
 
     if index:
         print "INDEX"
-        for i, cc_i in enumerate(cc_list):
-            id_map[cc_i] = i
+    for i, cc_i in enumerate(cc_list):
+        id_map[cc_i] = i
+        if index:
             print "{0} -> {1}".format(i, cc_i)
 
-    print "STACK"
-    for state in reversed(stack):
-        print "{0}".format(id_map.get(state, "FUCKED UP"))
+    print "STACK: {0}".format(" ".join(map(lambda x: "{0}".format(id_map.get(x)), stack)))
+    # print "======="
+    # print " ".join(map(lambda x: "{0}".format(id_map.get(x)), stack))
+    # for state in reversed(stack):
+        # print "{0}".format(id_map.get(state))
+        # print state
 
-    print "======="
+    # print "======="
 
 def prod_to_string(prod):
     head, body = prod

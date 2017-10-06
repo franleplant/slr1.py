@@ -77,8 +77,14 @@ class Test(unittest.TestCase):
         self.assertEqual(follow_table["F"], set([EOF, "+", "*", ")"]))
 
     def test_parse(self):
-        (ok) = parse(grammar, [("id", ), ("+", ), ("id",), (EOF, )])
-        self.assertEqual(ok, True)
+        ok = parse(grammar, [("id", ), ("+", ), ("id",), (EOF, )])
+        self.assertTrue(ok)
+
+        ok = parse(grammar, [("id", ), (EOF, )])
+        self.assertTrue(ok)
+
+        ok = parse(grammar, [ (EOF, )])
+        self.assertTrue(ok)
 
 
 
