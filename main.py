@@ -53,16 +53,21 @@ def canonical_collection(grammar):
     q0_item = (0, 0)
     cc0 = closure(set([q0_item]), grammar)
     cc = set([cc0])
+    # Avoid processing a cc_i twice
+    done = set([])
 
 
     while True:
         new_ccs = set([])
         for cc_i in cc:
+            if cc_i in done:
+                continue
             for symbol in grammar_symbols:
                 cc_next = goto(cc_i, symbol, grammar)
                 if len(cc_next) > 0 :
                     new_ccs.add(cc_next)
                     goto_table[(cc_i, symbol)] = cc_next
+            done.add(cc_i)
 
         if new_ccs <= cc:
             break
